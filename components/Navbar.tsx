@@ -52,7 +52,7 @@ const Navbar = () => {
                     <li><DarkMode /></li>
                     <hr />
                     <li>
-                        <Link href={`/protected/${userData?.id}`} className="flex items-center justify-between btn btn-secondary">
+                        <Link href={`/protected/${userData?.id}`} className="flex items-center justify-between btn btn-primary">
                             <span className="tracking-wider">Home</span>
                             <i className="fi fi-rs-home"></i>
                         </Link>
@@ -60,7 +60,7 @@ const Navbar = () => {
                     <li >
                         <button onClick={handleSignOut} className="flex items-center justify-between">
                             <span className="tracking-wider">Logout</span>
-                            <i className="fi fi-rs-sign-out-alt"></i>
+                            <i className="fi fi-rr-power"></i>
                         </button>
                     </li>
                 </ul>
@@ -75,11 +75,11 @@ const Navbar = () => {
                         <li >
                             <button onClick={handleSignOut} className="flex items-center justify-between">
                                 <span className="tracking-wider">Logout</span>
-                                <i className="fi fi-rs-sign-out-alt"></i>
+                                <i className="fi fi-rr-power"></i>
                             </button>
                         </li>
                     </ul>
-                </div>) : (<Link href={"/login"} className='btn btn-ghost text-secondary'>Login <i className="fi fi-sr-sign-in-alt"></i></Link>)}
+                </div>) : (<Link href={"/login"} className='btn btn-ghost'>Login <i className="fi fi-sr-user"></i></Link>)}
             </div>
         </div >
     )
