@@ -37,7 +37,9 @@ const useGetNotes = () => {
         };
         fetchNotes();
 
-    }, [notes])
+    }, [])
+
+
     return {
         notes,
     };
@@ -241,35 +243,33 @@ const NoteListForm = () => {
             {updateNoteModal}
             {deleteNoteModal}
             {notes ? notes.map(note => <li key={note.id} className="card bg-base-100 drop-shadow-md h-[18rem] rounded-2xl">
-                <div className="card-body h-full rounded-2xl">
-                    <div className="card-title justify-end">
-                        <div className=" dropdown dropdown-end">
-                            <div tabIndex={0} role="button" className="btn btn-ghost btn-xs btn-circle m-1"><i className="fi fi-br-menu-dots-vertical"></i></div>
-                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                                <li>
-                                    <a
-                                        onClick={() => {
-                                            openUpdateNoteModal({ id: note.id, note: note.note, userId: note.userId })
-                                        }}
-                                        className="text-end"
-                                    >
-                                        Edit
-                                        <i className="fi fi-rr-pencil"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a
-                                        onClick={() => openDeleteNoteModal({ id: note.id, note: note.note, userId: note.userId })}
-                                        className="text-end"
-                                    >
-                                        Delete
-                                        <i className="ml-4 fi fi-rr-trash"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
+                <div className="relative card-body h-full rounded-2xl">
+                    <div className="absolute top-2 right-2 dropdown dropdown-end">
+                        <div tabIndex={0} role="button" className="btn btn-ghost btn-xs btn-circle m-1"><i className="fi fi-rr-menu-dots"></i></div>
+                        <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                            <li>
+                                <a
+                                    onClick={() => {
+                                        openUpdateNoteModal({ id: note.id, note: note.note, userId: note.userId })
+                                    }}
+                                    className="text-end"
+                                >
+                                    Edit
+                                    <i className="fi fi-rr-pencil"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    onClick={() => openDeleteNoteModal({ id: note.id, note: note.note, userId: note.userId })}
+                                    className="text-end"
+                                >
+                                    Delete
+                                    <i className="ml-4 fi fi-rr-trash"></i>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
-                    <p className="font-light tracking-widest text-md h-full border-[0.01em] rounded-2xl px-4 py-2">{note.note}</p>
+                    <p className="font-light tracking-widest text-md h-full border-[0.01em] rounded-lg px-4 py-2">{note.note}</p>
                 </div>
 
             </li>) : <NoteListSkeleton />}
