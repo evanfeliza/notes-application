@@ -49,16 +49,16 @@ const useAddNewNoteModal = () => {
 
     return {
         modal:
-            <Modal modalBoxClassName="flex flex-col gap-4" onBackdropClick={() => addNewNoteModalRef?.current?.close()} ref={addNewNoteModalRef}>
-                <p className="text-lg tracking-wider font-semibold text-secondary mb-4">Your New Note</p>
+            <Modal onBackdropClick={() => addNewNoteModalRef?.current?.close()} ref={addNewNoteModalRef}>
+                <p className="text-lg tracking-wider font-semibold text-primary mb-2">Your New Note</p>
                 <textarea rows={5} className="textarea textarea-bordered w-full resize-none" placeholder="Type here" {...register("note", { required: "Field is empty." })}></textarea>
                 {errors?.note && <p className="text-xs text-warning flex py-2 px-1 gap-2 items-center"><i className="fi fi-sr-info"></i>{errors.note?.message}</p>}
-                <div className="card-actions justify-end">
+                <div className="modal-action justify-end">
                     <button onClick={() => {
                         reset()
                         addNewNoteModalRef?.current?.close()
-                    }} className="btn btn-error tracking-widest font-light">Cancel</button>
-                    <button type="submit" className="btn btn-success tracking-widest font-light">Submit</button>
+                    }} className="btn btn-sm btn-error btn-outline tracking-widest font-light">Cancel</button>
+                    <button type="submit" className="btn btn-sm btn-success btn-outline  tracking-widest font-light">Submit</button>
                 </div>
             </Modal >
         ,
@@ -100,23 +100,23 @@ const useUpdateNoteModal = () => {
     };
     return {
         modal:
-            <Modal modalBoxClassName="flex flex-col gap-4" onBackdropClick={() => {
+            <Modal onBackdropClick={() => {
                 reset()
                 updateNoteModalRef?.current?.close()
             }} ref={updateNoteModalRef}>
-                <p className="text-lg tracking-wider font-semibold text-secondary mb-4">Edit  Your Note</p>
+                <p className="text-lg tracking-wider font-semibold text-primary mb-4">Edit  Your Note</p>
                 <textarea rows={5} className="textarea textarea-bordered w-full resize-none" placeholder="Type here" {...register("note", { required: "Field is empty." })}></textarea>
                 {errors?.note && <p className="text-xs text-warning flex py-2 px-1 gap-2 items-center"><i className="fi fi-sr-info"></i>{errors.note?.message}</p>}
-                <div className="card-actions justify-end">
+                <div className="modal-action justify-end">
                     <button onClick={(e) => {
                         e.preventDefault();
                         reset()
                         updateNoteModalRef?.current?.close()
-                    }} className="btn btn-error tracking-widest font-light">Cancel</button>
+                    }} className="btn btn-error btn-sm btn-outline tracking-widest font-light">Cancel</button>
                     <button onClick={() => handleSubmitUpdateNote({
                         id: updateNote!.id!,
                         note: updateNoteValue
-                    })} className="btn btn-success tracking-widest font-light">Save</button>
+                    })} className="btn btn-success btn-sm btn-outline tracking-widest font-light">Save</button>
                 </div>
             </Modal >
         ,
@@ -219,11 +219,13 @@ const NoteListSkeleton = () => {
 
     return <>
         {
-            skeletonList.map((_, index) => <li key={index} className="bg-base-100 rounded-xl h-52 drop-shadow-md px-6 py-4 skeleton flex flex-col gap-5">
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-full"></div>
-                <div className="skeleton h-4 w-1/4"></div>
+            skeletonList.map((_, index) => <li key={index} className="card bg-base-100 drop-shadow-md h-[18rem] rounded-2xl">
+                <div className="card-body gap-2">
+                    <div className="skeleton h-4 w-1/4"></div>
+                    <div className="skeleton h-4 w-full"></div>
+                    <div className="skeleton h-4 w-3/4"></div>
+                    <div className="skeleton h-4 w-1/4"></div>
+                </div>
             </li>)
         }
     </>
@@ -238,22 +240,38 @@ const NoteListForm = () => {
         <ul className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-max grid-flow-row overflow-y-auto px-8 py-6 max-h-full h-full">
             {updateNoteModal}
             {deleteNoteModal}
-            {notes ? notes.map(note => <li key={note.id} className="card bg-base-100 drop-shadow-md h-full rounded-2xl">
+            {notes ? notes.map(note => <li key={note.id} className="card bg-base-100 drop-shadow-md h-[18rem] rounded-2xl">
                 <div className="card-body h-full rounded-2xl">
-                    <p className="font-light tracking-widest text-md h-full">{note.note}</p>
-                    <div className="mt-2 flex justify-end gap-2">
-                        <button className="btn btn-primary tracking-widest font-light inline-block uppercase" onClick={() => {
-                            openUpdateNoteModal({ id: note.id, note: note.note, userId: note.userId })
-                        }}>
-                            Edit
-                            <i className="ml-4 fi fi-rr-edit"></i>
-                        </button>
-                        <button className="btn btn-error tracking-widest uppercase font-light inline-block" onClick={() => openDeleteNoteModal({ id: note.id, note: note.note, userId: note.userId })}>
-                            Delete
-                            <i className="ml-4 fi fi-rr-trash"></i>
-                        </button>
+                    <div className="card-title justify-end">
+                        <div className=" dropdown dropdown-end">
+                            <div tabIndex={0} role="button" className="btn btn-ghost btn-xs btn-circle m-1"><i className="fi fi-br-menu-dots-vertical"></i></div>
+                            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                <li>
+                                    <a
+                                        onClick={() => {
+                                            openUpdateNoteModal({ id: note.id, note: note.note, userId: note.userId })
+                                        }}
+                                        className="text-end"
+                                    >
+                                        Edit
+                                        <i className="fi fi-rr-pencil"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        onClick={() => openDeleteNoteModal({ id: note.id, note: note.note, userId: note.userId })}
+                                        className="text-end"
+                                    >
+                                        Delete
+                                        <i className="ml-4 fi fi-rr-trash"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
+                    <p className="font-light tracking-widest text-md h-full border-[0.01em] rounded-2xl px-4 py-2">{note.note}</p>
                 </div>
+
             </li>) : <NoteListSkeleton />}
         </ul>
     )
@@ -264,16 +282,16 @@ const NoteListForm = () => {
 
 const NoteForm = () => {
     const { modal: addNewNoteModal, open: openAddNewNoteModal } = useAddNewNoteModal()
- 
+
 
     return <div className="mt-20">
         {addNewNoteModal}
         <div className="px-8 py-4 flex items-center justify-between">
-            <h1 className="text-3xl tracking-wider text-secondary font-medium">My Notes</h1>
+            <h1 className="text-3xl tracking-wider text-primary font-medium">My Notes</h1>
             <div className="my-auto p-4">
-                <span className="tracking-wider text-lg mr-4 ">New Note</span>
-                <button onClick={openAddNewNoteModal} className="btn btn-circle btn-secondary my-auto">
-                    <i className="fi fi-rs-add-document text-base-100 text-2xl"></i>
+                <button onClick={openAddNewNoteModal} className="btn btn-outline btn-primary  my-auto ">
+                    <i className="fi fi-rs-add-document text-2xl"></i>
+                    New Note
                 </button>
             </div>
         </div>
