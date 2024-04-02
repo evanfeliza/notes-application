@@ -22,7 +22,9 @@ const ProtectedPageLayout = async ({
         <div className="h-screen mx-auto container">
             <Navbar />
             <div className='max-h-full h-full'>
-                {children}
+                <div className='max-h-full h-full px-8 py-4'>
+                    {children}
+                </div>
                 <Footer />
             </div>
 

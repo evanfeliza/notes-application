@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from "react"
-import { useParams, usePathname } from "next/navigation"
+import { useParams } from "next/navigation"
 import { useForm, useFormContext, FormProvider } from "react-hook-form"
 import { createClient } from "@/utils/supabase/client"
 import { Modal } from "@/components/Modal"
@@ -264,15 +264,7 @@ const NoteListForm = () => {
 
 const NoteForm = () => {
     const { modal: addNewNoteModal, open: openAddNewNoteModal } = useAddNewNoteModal()
-    const pathname = usePathname()
-    const segments = pathname.split('/')
-    const path = segments[segments.length - 1]
-
-    useEffect(() => {
-        if (path === "add") {
-            openAddNewNoteModal()
-        }
-    }, [path, pathname])
+ 
 
     return <div className="mt-20">
         {addNewNoteModal}

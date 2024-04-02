@@ -12,7 +12,6 @@ export const metadata = {
   description: "A Note Application for the web.",
   icons: {
     icon: "/app/favicon-32x32.png",
-
   }
 };
 
