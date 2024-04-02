@@ -8,7 +8,7 @@ const LoginLayout = ({
 }) => {
     return (
         <div className="h-screen">
-            <div className='container mx-auto relative px-8 py-4'>
+            <div className='container mx-auto relative'>
                 <div className='absolute top-5 left-5'>
                     <DarkMode />
                 </div>
