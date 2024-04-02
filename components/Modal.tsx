@@ -4,7 +4,6 @@ export type ModalProps = {
     children?: ReactNode
     onBackdropClick?: () => void
     modalBoxClassName?: string
-    // you can add more classNames as per your level of customisation needs
 }
 
 export const Modal = forwardRef<HTMLDialogElement, ModalProps>(
