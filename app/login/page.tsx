@@ -41,40 +41,45 @@ const LoginForm = () => {
                     <h3 className="text-5xl tracking-widest uppercase font-bold mx-auto flex-none">Login</h3>
                 </div>
                 <p className="flex-none text-sm tracking-wider">Please enter your email and password to access the application.</p>
-                <label htmlFor="email" className='join'>
-                    <div className="join-item btn btn-disabled btn-accent">
-                        <i className="fi fi-br-at"></i>
-                    </div>
-                    <input
-                        placeholder="Email"
-                        type="email"
-                        autoComplete="off"
-                        className="input input-bordered join-item w-full"
-                        {...register("email", {
-                            required: "Email is required", pattern: {
-                                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                                message: `This is not a valid email address`
-                            }
-                        })}
-                    />
-                    {errors?.email && <p className="text-xs text-warning flex py-2 px-1 gap-2 items-center"><i className="fi fi-sr-info"></i>{errors.email?.message}</p>}
-                </label>
-                <label htmlFor="password" className='join'>
-                    <div className="join-item btn btn-disabled btn-accent">
-                        <i className="fi fi-rr-lock"></i>
-                    </div>
-                    <input
-                        placeholder="Password"
-                        type="password"
-                        autoComplete="off"
-                        className="input input-bordered join-item w-full"
-                        {...register("password", { required: "Password is required" })}
-                    />
-                    {errors?.password && <p className="text-xs text-warning flex py-2 px-1 gap-2 items-center"><i className="fi fi-sr-info"></i>{errors.password?.message}</p>}
-                </label>
+                <div className="w-full">
+                    <label htmlFor="email" className='join w-full'>
+                        <div className="join-item btn btn-disabled btn-accent">
+                            <i className="fi fi-br-at"></i>
+                        </div>
+                        <input
+                            placeholder="Email"
+                            type="email"
+                            autoComplete="off"
+                            className="input input-bordered join-item w-full"
+                            {...register("email", {
+                                required: "Email is required", pattern: {
+                                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                    message: `This is not a valid email address`
+                                }
+                            })}
+                        />
+                    </label>
+                    {errors?.email && <p className="text-xs text-warning mt-1 "><i className="fi fi-sr-info mr-1"></i>{errors.email?.message}</p>}
+                </div>
+                <div className="w-full">
+                    <label htmlFor="password" className='join w-full'>
+                        <div className="join-item btn btn-disabled btn-accent">
+                            <i className="fi fi-rr-lock"></i>
+                        </div>
+                        <input
+                            placeholder="Password"
+                            type="password"
+                            autoComplete="off"
+                            className="input input-bordered join-item w-full"
+                            {...register("password", { required: "Password is required" })}
+                        />
+                    </label>
+                    {errors?.password && <p className="text-xs text-warning mt-1"><i className="fi fi-sr-info mr-1"></i>{errors.password?.message}</p>}
+                </div>
                 <input type="submit" className="btn btm-nav-sm btn-outline btn-accent uppercase tracking-widest text-accent-content" />
                 <p className='text-sm text-right '>You don't have an account?<Link href={`/signup`} className=' ml-2 btn-link'>Sign Up here!</Link></p>
             </div>
+
         </div>
     );
 };
