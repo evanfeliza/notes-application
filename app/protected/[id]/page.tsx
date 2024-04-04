@@ -17,28 +17,29 @@ type NotesFormData = {
 
 const getNotesDetails = async () => {
     const supabase = createClient()
-    const { data } = await supabase
+    const { data, error } = await supabase
         .from('notes')
         .select('*')
+
+    if (error) {
+        return []
+    }
     return data
 }
 
 const useGetNotes = () => {
     const [notes, setNotes] = useState<NotesFormData[] | null>(null);
-
     useEffect(() => {
-        const fetchNotes = async () => {
+        const fetchData = async () => {
             try {
                 const res = await getNotesDetails();
                 setNotes(res);
             } catch (error) {
                 toast.error(`${error}`, { className: "capitalize tracking-widest text-xs" });
             }
-        };
-        fetchNotes();
-
-    }, [])
-
+        }
+        fetchData()
+    }, [notes])
 
     return {
         notes,
@@ -85,15 +86,14 @@ const useUpdateNoteModal = () => {
         note: string
     }) => {
         try {
-            const { error } = await supabase
+            const { data, error } = await supabase
                 .from('notes')
                 .update({ note: note })
-                .eq('id', id).select();
+                .eq('id', id).select("*");
 
             if (error) {
                 throw new Error(error.message);
             }
-
             toast.success(`Updated!`, { className: "capitalize tracking-widest text-xs" });
             updateNoteModalRef?.current?.close()
         } catch (error) {
@@ -283,11 +283,13 @@ const NoteListForm = () => {
 const NoteForm = () => {
     const { modal: addNewNoteModal, open: openAddNewNoteModal } = useAddNewNoteModal()
 
-
     return <div className="mt-20">
         {addNewNoteModal}
         <div className="px-8 py-4 flex items-center justify-between">
-            <h1 className="text-3xl tracking-wider text-primary font-medium">My Notes</h1>
+            <div className="flex gap-2 items-center justify-center">
+                <h1 className="text-3xl tracking-wider text-primary font-medium uppercase">My Notes</h1>
+                <button className="btn btn-ghost" ><i className="fi fi-rr-refresh"></i></button>
+            </div>
             <div className="my-auto p-4">
                 <button onClick={openAddNewNoteModal} className="btn btn-outline btn-primary  my-auto ">
                     <i className="fi fi-rs-add-document text-2xl"></i>
