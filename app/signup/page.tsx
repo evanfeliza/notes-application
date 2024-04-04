@@ -38,7 +38,7 @@ const useSignUp = () => {
 const SignUpForm = () => {
     const { register, formState: { errors }, } = useFormContext<SignUpFormData>();
     return (
-        <div className="flex flex-col items-center justify-center h-screen w-screen max-h-screen max-w-screen">
+        <div className="flex flex-col items-center justify-center h-screenmax-h-screen ">
             <div className="card gap-2">
                 <h3 className="text-5xl tracking-widest uppercase font-bold mx-auto flex-none">Sign Up</h3>
                 <p className="flex-none text-sm tracking-wider">Please enter your email and password for registration.</p>

@@ -35,7 +35,7 @@ const LoginForm = () => {
 
     const { register, formState: { errors }, } = useFormContext<LoginInFormData>();
     return (
-        <div className="flex flex-col items-center justify-center h-screen max-h-screen w-screen max-w-screen px-4 py-3">
+        <div className="flex flex-col items-center justify-center h-screen max-h-screen px-4 py-3">
             <div className="card gap-4">
                 <div className="card-title">
                     <h3 className="text-5xl tracking-widest uppercase font-bold mx-auto flex-none">Login</h3>
