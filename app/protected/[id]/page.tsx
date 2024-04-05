@@ -288,7 +288,6 @@ const NoteForm = () => {
         <div className="px-8 py-4 flex items-center justify-between">
             <div className="flex gap-2 items-center justify-center">
                 <h1 className="text-3xl tracking-wider text-primary font-medium uppercase">My Notes</h1>
-                <button className="btn btn-ghost" ><i className="fi fi-rr-refresh"></i></button>
             </div>
             <div className="my-auto p-4">
                 <button onClick={openAddNewNoteModal} className="btn btn-outline btn-primary  my-auto ">
