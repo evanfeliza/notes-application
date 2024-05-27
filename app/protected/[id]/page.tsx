@@ -1,11 +1,13 @@
 "use client"
+
+
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "next/navigation"
 import { useForm, useFormContext, FormProvider } from "react-hook-form"
 import { createClient } from "@/utils/supabase/client"
 import { Modal } from "@/components/Modal"
 import toast, { Toaster } from "react-hot-toast"
-
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 
 
 type NotesFormData = {
@@ -28,21 +30,11 @@ const getNotesDetails = async () => {
 }
 
 const useGetNotes = () => {
-    const [notes, setNotes] = useState<NotesFormData[] | null>(null);
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await getNotesDetails();
-                setNotes(res);
-            } catch (error) {
-                toast.error(`${error}`, { className: "capitalize tracking-widest text-xs" });
-            }
-        }
-        fetchData()
-    }, [notes])
+    const { data: noteslists, isFetching } = useSuspenseQuery<NotesFormData[]>({ queryKey: ["notes-list"], queryFn: getNotesDetails })
 
     return {
-        notes,
+        noteslists,
+        isFetching
     };
 };
 
@@ -61,7 +53,7 @@ const useAddNewNoteModal = () => {
                         reset()
                         addNewNoteModalRef?.current?.close()
                     }} className="btn btn-sm btn-error btn-outline tracking-widest font-light">Cancel</button>
-                    <button type="submit" className="btn btn-sm btn-success btn-outline  tracking-widest font-light">Submit</button>
+                    <button type="submit" onClick={() => addNewNoteModalRef.current?.close()} className="btn btn-sm btn-success btn-outline  tracking-widest font-light">Submit</button>
                 </div>
             </Modal >
         ,
@@ -73,6 +65,7 @@ const useUpdateNoteModal = () => {
     const [updateNote, setUpdateNote] = useState<NotesFormData>()
     const { register, reset, formState: { errors }, watch } = useForm<NotesFormData>()
     const supabase = createClient()
+    const queryClient = useQueryClient()
     const updateNoteModalRef = useRef<HTMLDialogElement>(null)
 
     const updateNoteValue = watch("note")
@@ -81,12 +74,12 @@ const useUpdateNoteModal = () => {
         reset(updateNote)
     }, [updateNote])
 
-    const handleSubmitUpdateNote = async ({ id, note }: {
-        id: string;
-        note: string
-    }) => {
-        try {
-            const { data, error } = await supabase
+    const updateSubmitNote = useMutation({
+        mutationFn: async ({ id, note }: {
+            id: string;
+            note: string
+        }) => {
+            const { error } = await supabase
                 .from('notes')
                 .update({ note: note })
                 .eq('id', id).select("*");
@@ -94,11 +87,25 @@ const useUpdateNoteModal = () => {
             if (error) {
                 throw new Error(error.message);
             }
-            toast.success(`Updated!`, { className: "capitalize tracking-widest text-xs" });
             updateNoteModalRef?.current?.close()
-        } catch (error) {
-            toast.error(`${error}`, { className: "capitalize tracking-widest text-xs" });
         }
+    });
+
+
+    const handleSubmitUpdateNote = async ({ id, note }: {
+        id: string;
+        note: string
+    }) => {
+        updateSubmitNote.mutate({ id, note }, {
+            onSuccess: () => {
+                reset()
+                queryClient.invalidateQueries({ queryKey: ['notes-list'] })
+                toast.success(`Updated!`, { className: "capitalize tracking-widest text-xs" });
+            },
+            onError: (context) => {
+                toast.error(`${context?.message}`, { className: "capitalize tracking-widest text-xs" });
+            }
+        })
     };
     return {
         modal:
@@ -134,13 +141,14 @@ const useDeleteNoteModal = () => {
     const [currentNote, setCurrentNote] = useState<NotesFormData>()
     const { reset } = useForm<NotesFormData>()
     const supabase = createClient()
+    const queryClient = useQueryClient()
     const useDeleteNoteModal = useRef<HTMLDialogElement>(null)
 
-    const handleDeleteNote = async ({ id, note }: {
-        id: string;
-        note: string
-    }) => {
-        try {
+    const deleteNoteMutation = useMutation({
+        mutationFn: async ({ id, note }: {
+            id: string;
+            note: string
+        }) => {
             const { error } = await supabase
                 .from('notes')
                 .delete()
@@ -150,11 +158,26 @@ const useDeleteNoteModal = () => {
                 throw new Error(error.message);
             }
 
-            toast.success(`Removed`, { className: "capitalize tracking-widest text-xs" });
+
             useDeleteNoteModal?.current?.close()
-        } catch (error) {
-            toast.error(`${error}`, { className: "capitalize tracking-widest text-xs" });
         }
+    });
+
+
+    const handleDeleteNote = async ({ id, note }: {
+        id: string;
+        note: string
+    }) => {
+        deleteNoteMutation.mutate({ id, note }, {
+            onSuccess: () => {
+                reset()
+                queryClient.invalidateQueries({ queryKey: ['notes-list'] })
+                toast.success(`Removed`, { className: "capitalize tracking-widest text-xs" });
+            },
+            onError: (context) => {
+                toast.error(`${context?.message}`, { className: "capitalize tracking-widest text-xs" });
+            }
+        })
     };
     return {
         modal:
@@ -185,29 +208,34 @@ const useDeleteNoteModal = () => {
 
 
 const useNotesForm = () => {
+    const queryClient = useQueryClient()
     const params = useParams<{ id: string }>()
     const supabase = createClient()
     const methods = useForm<NotesFormData>()
 
-
-    const onSubmit = async (formData: NotesFormData) => {
-        try {
-            const { error } = await supabase
+    const submitMutation = useMutation({
+        mutationFn: async (formData: NotesFormData) => {
+            await supabase
                 .from('notes')
                 .insert([
                     { user_id: params.id, note: formData.note },
                 ])
                 .select();
-
-            if (error) {
-                throw new Error(error.message);
-            }
-
-            toast.success(`Added a new note!`, { className: "capitalize tracking-widest text-xs" });
-            methods.reset();
-        } catch (error) {
-            toast.error(`${error}`, { className: "capitalize tracking-widest text-xs" });
         }
+    });
+
+
+    const onSubmit = async (formData: NotesFormData) => {
+        submitMutation.mutate(formData, {
+            onSuccess: () => {
+                methods.reset()
+                queryClient.invalidateQueries({ queryKey: ['notes-list'] })
+                toast.success(`New Note Added`, { className: "capitalize tracking-widest text-xs" });
+            },
+            onError: (context) => {
+                console.log("error", context?.message)
+            }
+        })
     }
 
     return {
@@ -236,43 +264,55 @@ const NoteListSkeleton = () => {
 const NoteListForm = () => {
     const { modal: updateNoteModal, open: openUpdateNoteModal } = useUpdateNoteModal()
     const { modal: deleteNoteModal, open: openDeleteNoteModal } = useDeleteNoteModal()
-    const { notes } = useGetNotes()
+    const { noteslists, isFetching } = useGetNotes()
+
 
     return (
-        <ul className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-max grid-flow-row overflow-y-auto px-8 py-6 max-h-full h-full">
+        <ul className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 auto-rows-max grid-flow-row overflow-y-auto px-8 py-6 max-h-full h-full">
             {updateNoteModal}
             {deleteNoteModal}
-            {notes ? notes.map(note => <li key={note.id} className="card bg-base-100 drop-shadow-md h-[18rem] rounded-2xl">
-                <div className="relative card-body h-full rounded-2xl">
-                    <div className="absolute top-2 right-2 dropdown dropdown-end">
-                        <div tabIndex={0} role="button" className="btn btn-ghost btn-xs btn-circle m-1"><i className="fi fi-rr-menu-dots"></i></div>
-                        <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                            <li>
-                                <a
-                                    onClick={() => {
-                                        openUpdateNoteModal({ id: note.id, note: note.note, userId: note.userId })
-                                    }}
-                                    className="text-end"
-                                >
-                                    Edit
-                                    <i className="fi fi-rr-pencil"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    onClick={() => openDeleteNoteModal({ id: note.id, note: note.note, userId: note.userId })}
-                                    className="text-end"
-                                >
-                                    Delete
-                                    <i className="ml-4 fi fi-rr-trash"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <p className="font-light tracking-widest text-md h-full border-[0.01em] rounded-lg px-4 py-2">{note.note}</p>
-                </div>
+            {!isFetching ? (
+                noteslists.length > 0 ? (
+                    noteslists.map(note => (
+                        <li key={note.id} className="card bg-base-100 drop-shadow-md h-[18rem] rounded-2xl">
+                            <div className="w-full flex-1 text-end border-b p-1 dropdown dropdown-end">
+                                <div tabIndex={0} role="button" className="btn btn-ghost btn-sm btn-circle m-1">
+                                    <i className="fi fi-rr-menu-dots text-md mt-1"></i>
+                                </div>
+                                <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                    <li>
+                                        <a
+                                            onClick={() => {
+                                                openUpdateNoteModal({ id: note.id, note: note.note, userId: note.userId })
+                                            }}
+                                            className="text-end"
+                                        >
+                                            Edit
+                                            <i className="fi fi-rr-pencil"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a
+                                            onClick={() => openDeleteNoteModal({ id: note.id, note: note.note, userId: note.userId })}
+                                            className="text-end"
+                                        >
+                                            Delete
+                                            <i className="ml-4 fi fi-rr-trash"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <p className="font-light tracking-tighter text-2xl h-full px-4 py-2">{note.note}</p>
+                        </li>
+                    ))
+                ) : (
+                    <p className="col-span-2 h-full text-center text-lg mt-4">No notes available</p>
+                )
+            ) : (
+                <NoteListSkeleton />
+            )}
 
-            </li>) : <NoteListSkeleton />}
+
         </ul>
     )
 }
@@ -287,7 +327,7 @@ const NoteForm = () => {
         {addNewNoteModal}
         <div className="px-8 py-4 flex items-center justify-between">
             <div className="flex gap-2 items-center justify-center">
-                <h1 className="text-3xl tracking-wider text-primary font-medium uppercase">My Notes</h1>
+                <h1 className="text-5xl tracking-tighter text-primary font-medium capitalize">My Notes</h1>
             </div>
             <div className="my-auto p-4">
                 <button onClick={openAddNewNoteModal} className="btn btn-outline btn-primary  my-auto ">

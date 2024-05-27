@@ -1,6 +1,7 @@
 
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
+import { Providers } from "@/components/libs/query-provider";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -25,7 +26,9 @@ export default async function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <body>
         <main className="container mx-auto">
-          {children}
+          <Providers>
+            {children}
+          </Providers>
         </main>
       </body>
     </html>

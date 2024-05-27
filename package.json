@@ -11,6 +11,8 @@
     "@flaticon/flaticon-uicons": "^3.1.0",
     "@supabase/ssr": "latest",
     "@supabase/supabase-js": "latest",
+    "@tanstack/react-query": "^5.28.14",
+    "@tanstack/react-query-next-experimental": "^5.37.1",
     "autoprefixer": "10.4.17",
     "geist": "^1.2.1",
     "next": "latest",
